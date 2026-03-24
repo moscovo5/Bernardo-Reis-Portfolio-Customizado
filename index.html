@@ -1846,21 +1846,31 @@
         </div>
       </div>
 
-      <form class="contact-form reveal reveal-delay-2" onsubmit="handleSubmit(event)">
-        <div class="form-group">
-          <label class="form-label">Nome completo</label>
-          <input type="text" class="form-input" placeholder="O seu nome">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Email</label>
-          <input type="email" class="form-input" placeholder="email@exemplo.com">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Mensagem</label>
-          <textarea class="form-textarea" placeholder="Fale sobre o seu projeto..."></textarea>
-        </div>
-        <button type="submit" class="form-submit" id="submitBtn">Enviar mensagem</button>
-      </form>
+      <form 
+  action="https://formsubmit.co/moscovodollar@gmail.com" 
+  method="POST"
+  class="contact-form reveal reveal-delay-2"
+>
+  <!-- Campos ocultos de configuração -->
+  <input type="hidden" name="_subject"  value="Nova mensagem do site!">
+  <input type="hidden" name="_captcha"  value="false">
+  <input type="hidden" name="_template" value="box">
+
+  <div class="form-group">
+    <label class="form-label">Nome completo</label>
+    <input type="text" name="nome" class="form-input" placeholder="O seu nome" required>
+  </div>
+  <div class="form-group">
+    <label class="form-label">Email</label>
+    <input type="email" name="email" class="form-input" placeholder="email@exemplo.com" required>
+  </div>
+  <div class="form-group">
+    <label class="form-label">Mensagem</label>
+    <textarea name="mensagem" class="form-textarea" placeholder="Fale sobre o seu projeto..." required></textarea>
+  </div>
+
+  <button type="submit" class="form-submit">Enviar mensagem</button>
+</form>
     </div>
   </section>
 
