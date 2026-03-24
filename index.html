@@ -1887,138 +1887,163 @@
 
   <script>
     // ── CURSOR ────────────────────────────────────────────────
-    const cursor = document.getElementById('cursor');
-    const trail = document.getElementById('cursor-trail');
-    let mx = 0, my = 0, tx = 0, ty = 0;
+const cursor = document.getElementById('cursor');
+const trail  = document.getElementById('cursor-trail');
+let mx = 0, my = 0, tx = 0, ty = 0;
 
-    document.addEventListener('mousemove', e => {
-      mx = e.clientX; my = e.clientY;
-      cursor.style.left = mx - 6 + 'px';
-      cursor.style.top = my - 6 + 'px';
-    });
+document.addEventListener('mousemove', e => {
+  mx = e.clientX; my = e.clientY;
+  cursor.style.left = mx - 6 + 'px';
+  cursor.style.top  = my - 6 + 'px';
+});
 
-    function animateTrail() {
-      tx += (mx - tx - 20) * 0.12;
-      ty += (my - ty - 20) * 0.12;
-      trail.style.left = tx + 'px';
-      trail.style.top = ty + 'px';
-      requestAnimationFrame(animateTrail);
+function animateTrail() {
+  tx += (mx - tx - 20) * 0.12;
+  ty += (my - ty - 20) * 0.12;
+  trail.style.left = tx + 'px';
+  trail.style.top  = ty + 'px';
+  requestAnimationFrame(animateTrail);
+}
+animateTrail();
+
+// ── NAVBAR SCROLL ─────────────────────────────────────────
+const navbar   = document.getElementById('navbar');
+const progress = document.getElementById('progress');
+
+// ✅ CORRIGIDO — um único listener de scroll com tudo dentro
+window.addEventListener('scroll', () => {
+  navbar.classList.toggle('scrolled', window.scrollY > 60);
+
+  // Barra de progresso
+  const pct = (window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100;
+  progress.style.width = pct + '%';
+
+  // ✅ Parallax — usando transform sem forçar reflow no resto da página
+  const orb = document.querySelector('.hero-orb');
+  if (orb) orb.style.transform = `translateY(calc(-50% + ${window.scrollY * 0.3}px))`;
+});
+
+// ── TYPED TEXT ────────────────────────────────────────────
+const phrases = [
+  'Desenvolvedor Frontend',
+  'Designer UI/UX',
+  'Especialista Fintech',
+  'Consultor Digital',
+  'Criador de Experiências'
+];
+let pi = 0, ci = 0, deleting = false;
+const typedEl = document.getElementById('typed-text');
+
+function type() {
+  const phrase = phrases[pi];
+  if (!deleting) {
+    typedEl.textContent = phrase.slice(0, ++ci);
+    if (ci === phrase.length) {
+      deleting = true;
+      setTimeout(type, 1800);
+      return;
     }
-    animateTrail();
-
-    // ── NAVBAR SCROLL ─────────────────────────────────────────
-    const navbar = document.getElementById('navbar');
-    window.addEventListener('scroll', () => {
-      navbar.classList.toggle('scrolled', window.scrollY > 60);
-      // progress bar
-      const pct = (window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100;
-      document.getElementById('progress').style.width = pct + '%';
-    });
-
-    // ── TYPED TEXT ────────────────────────────────────────────
-    const phrases = [
-      'Desenvolvedor Frontend',
-      'Designer UI/UX',
-      'Especialista Fintech',
-      'Consultor Digital',
-      'Criador de Experiências'
-    ];
-    let pi = 0, ci = 0, deleting = false;
-    const typedEl = document.getElementById('typed-text');
-
-    function type() {
-      const phrase = phrases[pi];
-      if (!deleting) {
-        typedEl.textContent = phrase.slice(0, ++ci);
-        if (ci === phrase.length) { deleting = true; setTimeout(type, 1800); return; }
-      } else {
-        typedEl.textContent = phrase.slice(0, --ci);
-        if (ci === 0) { deleting = false; pi = (pi + 1) % phrases.length; }
-      }
-      setTimeout(type, deleting ? 40 : 80);
+  } else {
+    typedEl.textContent = phrase.slice(0, --ci);
+    if (ci === 0) {
+      deleting = false;
+      pi = (pi + 1) % phrases.length;
     }
-    type();
+  }
+  setTimeout(type, deleting ? 40 : 80);
+}
+type();
 
-    // ── COUNTER ANIMATION ─────────────────────────────────────
-    function animateCounter(el) {
-      const target = parseInt(el.dataset.target);
-      let current = 0;
-      const step = target / 60;
-      const t = setInterval(() => {
-        current = Math.min(current + step, target);
-        el.textContent = Math.floor(current) + (target > 20 ? '' : '');
-        if (current >= target) { el.textContent = target + '+'; clearInterval(t); }
-      }, 25);
+// ── COUNTER ANIMATION ─────────────────────────────────────
+function animateCounter(el) {
+  const target = parseInt(el.dataset.target);
+  let current  = 0;
+  const step   = target / 60;
+  const t = setInterval(() => {
+    current = Math.min(current + step, target);
+    el.textContent = Math.floor(current);
+    if (current >= target) {
+      el.textContent = target + '+';
+      clearInterval(t);
     }
+  }, 25);
+}
 
-    // ── SCROLL REVEAL ─────────────────────────────────────────
-    const revealEls = document.querySelectorAll('.reveal');
-    const skillBars = document.querySelectorAll('.skill-bar-fill');
-    const counters = document.querySelectorAll('.stat-num[data-target]');
-    let countersStarted = false, barsStarted = false;
+// ── SCROLL REVEAL ─────────────────────────────────────────
+const revealEls       = document.querySelectorAll('.reveal');
+const skillBars       = document.querySelectorAll('.skill-bar-fill');
+const counters        = document.querySelectorAll('.stat-num[data-target]');
+let countersStarted   = false;
+let barsStarted       = false;
 
-    const obs = new IntersectionObserver((entries) => {
-      entries.forEach(e => {
-        if (e.isIntersecting) {
-          e.target.classList.add('visible');
-          obs.unobserve(e.target);
-        }
-      });
-    }, { threshold: 0.12 });
-
-    revealEls.forEach(el => obs.observe(el));
-
-    const barObs = new IntersectionObserver((entries) => {
-      if (entries[0].isIntersecting && !barsStarted) {
-        barsStarted = true;
-        skillBars.forEach(b => {
-          b.style.width = b.dataset.width + '%';
-        });
-      }
-    }, { threshold: 0.3 });
-    const skillSection = document.querySelector('.skills-grid');
-    if (skillSection) barObs.observe(skillSection);
-
-    const countObs = new IntersectionObserver((entries) => {
-      if (entries[0].isIntersecting && !countersStarted) {
-        countersStarted = true;
-        counters.forEach(c => animateCounter(c));
-      }
-    }, { threshold: 0.5 });
-    const heroStats = document.querySelector('.hero-stats');
-    if (heroStats) countObs.observe(heroStats);
-
-    // ── FORM SUBMIT ───────────────────────────────────────────
-    function handleSubmit(e) {
-      e.preventDefault();
-      const btn = document.getElementById('submitBtn');
-      btn.textContent = 'A enviar...';
-      btn.style.opacity = '0.7';
-      setTimeout(() => {
-        btn.textContent = 'Mensagem enviada ✓';
-        btn.style.background = '#2a7a2a';
-        btn.style.color = '#fff';
-        setTimeout(() => {
-          btn.textContent = 'Enviar mensagem';
-          btn.style.background = '';
-          btn.style.color = '';
-          btn.style.opacity = '';
-          e.target.reset();
-        }, 3000);
-      }, 1200);
+const obs = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      obs.unobserve(e.target);
     }
+  });
+}, { threshold: 0.12 });
 
-    // ── PARALLAX SUBTLE ───────────────────────────────────────
-    window.addEventListener('scroll', () => {
-      const orb = document.querySelector('.hero-orb');
-      if (orb) orb.style.transform = `translateY(calc(-50% + ${window.scrollY * 0.3}px))`;
-    });
+revealEls.forEach(el => obs.observe(el));
 
-    // ── FOOTER YEAR ───────────────────────────────────────────
-    document.addEventListener('DOMContentLoaded', () => {
-      const yr = document.querySelector('.footer-copy');
-      if (yr) yr.innerHTML = yr.innerHTML.replace('2026', new Date().getFullYear());
-    });
+const skillSection = document.querySelector('.skills-grid');
+if (skillSection) {
+  const barObs = new IntersectionObserver((entries) => {
+    if (entries[0].isIntersecting && !barsStarted) {
+      barsStarted = true;
+      skillBars.forEach(b => b.style.width = b.dataset.width + '%');
+    }
+  }, { threshold: 0.3 });
+  barObs.observe(skillSection);
+}
+
+const heroStats = document.querySelector('.hero-stats');
+if (heroStats) {
+  const countObs = new IntersectionObserver((entries) => {
+    if (entries[0].isIntersecting && !countersStarted) {
+      countersStarted = true;
+      counters.forEach(c => animateCounter(c));
+    }
+  }, { threshold: 0.5 });
+  countObs.observe(heroStats);
+}
+
+// ── FOOTER YEAR ───────────────────────────────────────────
+// ✅ CORRIGIDO — direto, sem DOMContentLoaded desnecessário
+const yr = document.querySelector('.footer-copy');
+if (yr) yr.innerHTML = yr.innerHTML.replace('2026', new Date().getFullYear());
+
+// ── FORM ──────────────────────────────────────────────────
+// ✅ Se estiver a usar FormSubmit, APAGUE o handleSubmit abaixo
+//    e remova o onsubmit="handleSubmit(event)" do <form>
+//    O FormSubmit trata tudo via action="" no próprio form.
+//
+// ✅ Se quiser manter feedback visual SEM FormSubmit, use isto:
+function handleSubmit(e) {
+  e.preventDefault();
+  const btn  = document.getElementById('submitBtn');
+  const form = e.target;
+
+  btn.textContent  = 'A enviar...';
+  btn.disabled     = true;
+  btn.style.opacity = '0.7';
+
+  setTimeout(() => {
+    btn.textContent       = 'Mensagem enviada ✓';
+    btn.style.opacity     = '1';
+    btn.style.background  = '#2a7a2a';
+    btn.style.color       = '#fff';
+
+    setTimeout(() => {
+      btn.textContent      = 'Enviar mensagem';
+      btn.style.background = '';
+      btn.style.color      = '';
+      btn.disabled         = false;
+      form.reset();
+    }, 3000);
+  }, 1200);
+}
   </script>
 </body>
 
